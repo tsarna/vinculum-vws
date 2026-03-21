@@ -1,6 +1,6 @@
 module github.com/tsarna/vinculum-vws
 
-go 1.24.5
+go 1.25.8
 
 require go.uber.org/zap v1.27.0
 
