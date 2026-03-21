@@ -6,7 +6,7 @@ require go.uber.org/zap v1.27.0
 
 require (
 	github.com/amir-yaghoubi/mqttpattern v0.0.0-20250829083210-f7d8d46a786e
-	github.com/coder/websocket v1.8.13
+	github.com/coder/websocket v1.8.14
 	github.com/stretchr/testify v1.11.1
 	github.com/tsarna/vinculum-bus v0.9.0
 )
