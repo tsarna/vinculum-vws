@@ -8,13 +8,10 @@ require (
 	github.com/amir-yaghoubi/mqttpattern v0.0.0-20250829083210-f7d8d46a786e
 	github.com/coder/websocket v1.8.14
 	github.com/stretchr/testify v1.11.1
-	github.com/tsarna/vinculum-bus v0.9.0
+	github.com/tsarna/vinculum-bus v0.9.2
 )
 
-require (
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
-	github.com/tsarna/go-structdiff v0.2.0 // indirect
-)
+require github.com/tsarna/go-structdiff v0.2.1 // indirect
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
