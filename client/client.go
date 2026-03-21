@@ -46,6 +46,10 @@ type Client struct {
 	done         chan struct{}
 }
 
+func (c *Client) SetSubscriber(subscriber bus.Subscriber) {
+	c.subscriber = subscriber
+}
+
 // response represents a response to a request
 type response struct {
 	Success bool
