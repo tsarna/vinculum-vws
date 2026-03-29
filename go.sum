@@ -22,8 +22,8 @@ github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/tsarna/go-structdiff v0.2.1 h1:SD30U/azJB85tH9dgNu4qVOA2bPie9e1l5EvJodMaD8=
 github.com/tsarna/go-structdiff v0.2.1/go.mod h1:SJHNQUzbdMbXBBNyOBzBsRotrWcX1jruIrhouLuNBgo=
-github.com/tsarna/vinculum-bus v0.9.2 h1:npQgq4JeJGHxh4j7QKXBG8/L18j0o0/EjMeU/d34odM=
-github.com/tsarna/vinculum-bus v0.9.2/go.mod h1:rRKzON3SGZYrlzE9e01UO7kw3CLo9/JmPEXn2P780R4=
+github.com/tsarna/vinculum-bus v0.9.3 h1:bHS30SwR1qB1kP9lTOVyO0/d5GaIo7gggebmZoD0Wy8=
+github.com/tsarna/vinculum-bus v0.9.3/go.mod h1:rRKzON3SGZYrlzE9e01UO7kw3CLo9/JmPEXn2P780R4=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
 go.uber.org/multierr v1.10.0 h1:S0h4aNzvfcFsC3dRF1jLoaov7oRaKqRGC/pUEJ2yvPQ=
