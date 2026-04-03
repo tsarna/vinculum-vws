@@ -10,9 +10,10 @@ All messages are JSON objects that may contain the following keys:
 |-----|-------------|
 | `k` | **Kind** - The type of message (string) |
 | `t` | **Topic** - The topic or topic pattern (string) |
-| `d` | **Data** - The event data/payload (obnject) |
+| `d` | **Data** - The event data/payload (object) |
 | `e` | **Error** - An error message (string) |
-| `i` | **ID** - A message identifier for matching responses with requests (integer or string)|
+| `i` | **ID** - A message identifier for matching responses with requests (integer or string) |
+| `h` | **Headers** - Generic headers map for observability and extensibility (object with string values) |
 
 ## Message Types
 
@@ -141,6 +142,33 @@ Client → Server: {"t": "metrics/cpu", "d": {"usage": 85.2}, "i": "pub-1"}
 Server → Client: {"k": "a", "i": "pub-1"}
 ```
 
+## Headers (`h`)
+
+The optional `h` field is a flat `string → string` map for generic message metadata. It is omitted when empty. The `h` field may appear on any message type (events, subscribe/unsubscribe requests, ACK/NACK responses).
+
+The primary use case is distributed tracing via the [W3C TraceContext](https://www.w3.org/TR/trace-context/) standard:
+
+```json
+{
+  "t": "user/alice/login",
+  "d": {"timestamp": "2024-01-01T00:00:00Z"},
+  "h": {
+    "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+    "tracestate": "vendor=value"
+  }
+}
+```
+
+Well-known header keys:
+
+| Key | Description |
+|-----|-------------|
+| `traceparent` | W3C TraceContext trace parent (trace ID, span ID, flags) |
+| `tracestate` | W3C TraceContext vendor-specific state |
+| `baggage` | W3C Baggage key-value pairs |
+
+Senders that do not have a trace context active simply omit the `h` field. Receivers that do not understand a header key must ignore it.
+
 ## Implementation Notes
 
 - **Compact Format**: Short keys minimize bandwidth usage
@@ -148,3 +176,4 @@ Server → Client: {"k": "a", "i": "pub-1"}
 - **Topic Patterns**: Support MQTT-style wildcards (`+` for single level, `#` for multi-level)
 - **Error Handling**: All requests with `i` receive either `"a"` or `"n"` responses
 - **Event Streaming**: Messages without `k` are pure event data for maximum efficiency
+- **Backwards Compatibility**: The `h` field is always optional; older clients and servers that do not include it remain fully compatible

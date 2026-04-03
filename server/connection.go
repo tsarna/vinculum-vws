@@ -187,7 +187,8 @@ func (c *Connection) messageReader() {
 			zap.Any("id", request.Id),
 		)
 
-		handleRequest(c, c.ctx, request)
+		msgCtx := vws.ExtractTrace(c.ctx, request)
+		handleRequest(c, msgCtx, request)
 	}
 }
 
@@ -198,6 +199,7 @@ func (c *Connection) sendErrorResponse(id any, errorMsg string) {
 		Id:    id,
 		Error: errorMsg,
 	}
+	vws.InjectTrace(c.ctx, &response)
 
 	// Create EventBusMessage for error response and send via PassThrough
 	responseMsg := bus.EventBusMessage{
@@ -375,6 +377,11 @@ func (c *Connection) OnEvent(ctx context.Context, topic string, message any, fie
 
 	c.eventMsg["t"] = topic
 	c.eventMsg["d"] = message
+	if headers := vws.HeadersFromContext(ctx); headers != nil {
+		c.eventMsg["h"] = headers
+	} else {
+		delete(c.eventMsg, "h")
+	}
 
 	err := c.sendPacket(ctx, c.eventMsg)
 	if err != nil {
@@ -400,6 +407,7 @@ func (c *Connection) respondToRequest(ctx context.Context, request vws.WireMessa
 		response.Kind = vws.MessageKindNack
 		response.Error = err.Error()
 	}
+	vws.InjectTrace(ctx, &response)
 
 	// Create EventBusMessage for response and send via PassThrough
 	responseMsg := bus.EventBusMessage{

@@ -218,6 +218,7 @@ func (c *Client) Subscribe(ctx context.Context, topic string) error {
 		Topic: topic,
 		Id:    c.nextMessageID(),
 	}
+	vws.InjectTrace(ctx, &msg)
 
 	if err := c.sendMessage(ctx, msg); err != nil {
 		return err
@@ -244,6 +245,7 @@ func (c *Client) Unsubscribe(ctx context.Context, topic string) error {
 		Topic: topic,
 		Id:    c.nextMessageID(),
 	}
+	vws.InjectTrace(ctx, &msg)
 
 	if err := c.sendMessage(ctx, msg); err != nil {
 		return err
@@ -269,6 +271,7 @@ func (c *Client) UnsubscribeAll(ctx context.Context) error {
 		Kind: vws.MessageKindUnsubscribeAll,
 		Id:   c.nextMessageID(),
 	}
+	vws.InjectTrace(ctx, &msg)
 
 	if err := c.sendMessage(ctx, msg); err != nil {
 		return err
@@ -293,6 +296,7 @@ func (c *Client) Publish(ctx context.Context, topic string, payload any) error {
 		Topic: topic,
 		Data:  payload,
 	}
+	vws.InjectTrace(ctx, &msg)
 
 	return c.sendMessageNoResponse(msg)
 }
@@ -309,6 +313,7 @@ func (c *Client) PublishSync(ctx context.Context, topic string, payload any) err
 		Data:  payload,
 		Id:    c.nextMessageID(),
 	}
+	vws.InjectTrace(ctx, &msg)
 
 	return c.sendMessage(ctx, msg)
 }
@@ -540,8 +545,11 @@ func (c *Client) handleEvent(msg vws.WireMessage) {
 		return
 	}
 
+	// Extract trace context from message headers before delivering to subscriber
+	ctx := vws.ExtractTrace(c.ctx, msg)
+
 	// Deliver to our subscriber - the server only sends us events for topics we're subscribed to
-	if err := c.subscriber.OnEvent(c.ctx, msg.Topic, msg.Data, nil); err != nil {
+	if err := c.subscriber.OnEvent(ctx, msg.Topic, msg.Data, nil); err != nil {
 		c.logger.Warn("Subscriber error",
 			zap.String("topic", msg.Topic),
 			zap.Error(err))
