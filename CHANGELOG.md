@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+## [0.11.0] - 2026-04-08
+
+### Changed
+
+- **OTel metrics replaces o11y.MetricsProvider abstraction** — the listener now accepts `metric.MeterProvider` directly via `WithMeterProvider()` (replacing `WithMetricsProvider(o11y.MetricsProvider)`). Metric names follow OTel naming conventions with dot-delimited hierarchy: `websocket.connections`, `websocket.active_connections`, `websocket.connection.duration`, `websocket.received.messages`, `websocket.sent.messages`, `websocket.message.size`, `websocket.requests`, `websocket.request.duration`, `websocket.pings_sent`, `websocket.pong_timeouts`, `websocket.write_timeouts`, etc. Label keys updated to OTel conventions (`error.type` instead of `error_type`, `websocket.message.kind` instead of `kind`). Requires vinculum-bus v0.11.0.
+
 ## [0.10.0] - 2026-04-03
 
 ### Added

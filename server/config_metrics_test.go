@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	bus "github.com/tsarna/vinculum-bus"
+	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"
 )
 
@@ -61,18 +62,18 @@ func (m *testEventBus) PassThrough(msg bus.EventBusMessage) error {
 	return nil
 }
 
-func TestListenerConfig_WithMetricsProvider(t *testing.T) {
+func TestListenerConfig_WithMeterProvider(t *testing.T) {
 	logger := zap.NewNop()
 	eventBus := &testEventBus{}
-	provider := newTestMetricsProvider()
+	mp := noop.NewMeterProvider()
 
 	config := NewListener().
 		WithEventBus(eventBus).
 		WithLogger(logger).
-		WithMetricsProvider(provider)
+		WithMeterProvider(mp)
 
-	if config.metricsProvider != provider {
-		t.Error("Expected metrics provider to be set")
+	if config.meterProvider != mp {
+		t.Error("Expected meter provider to be set")
 	}
 
 	// Test building listener with metrics
@@ -91,14 +92,14 @@ func TestListenerConfig_WithMetricsProvider(t *testing.T) {
 	}
 }
 
-func TestListenerConfig_WithoutMetricsProvider(t *testing.T) {
+func TestListenerConfig_WithoutMeterProvider(t *testing.T) {
 	logger := zap.NewNop()
 	eventBus := &testEventBus{}
 
 	config := NewListener().
 		WithEventBus(eventBus).
 		WithLogger(logger)
-		// No metrics provider set
+		// No meter provider set
 
 	listener, err := config.Build()
 	if err != nil {
@@ -111,16 +112,16 @@ func TestListenerConfig_WithoutMetricsProvider(t *testing.T) {
 	}
 }
 
-func TestListenerConfig_MetricsProviderInExample(t *testing.T) {
+func TestListenerConfig_MeterProviderInExample(t *testing.T) {
 	// Test that the example in the documentation would work
 	logger := zap.NewNop()
 	eventBus := &testEventBus{}
-	metricsProvider := newTestMetricsProvider()
+	mp := noop.NewMeterProvider()
 
 	listener, err := NewListener().
 		WithEventBus(eventBus).
 		WithLogger(logger).
-		WithMetricsProvider(metricsProvider).
+		WithMeterProvider(mp).
 		WithQueueSize(512).
 		Build()
 

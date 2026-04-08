@@ -10,6 +10,7 @@ import (
 	bus "github.com/tsarna/vinculum-bus"
 	"github.com/tsarna/vinculum-bus/o11y"
 	"github.com/tsarna/vinculum-vws/server"
+	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"
 )
 
@@ -34,24 +35,19 @@ func ExampleWebSocketMetrics() {
 		log.Fatal(err)
 	}
 
-	// Create a metrics provider (using the standalone metrics provider)
-	metricsProvider := o11y.NewStandaloneMetricsProvider(eventBus, &o11y.StandaloneMetricsConfig{
+	// Create a standalone meter provider that publishes metrics to the bus
+	mp, _ := o11y.NewStandaloneMeterProvider(eventBus, &o11y.StandaloneMetricsConfig{
 		Interval:     30 * time.Second,
 		MetricsTopic: "$metrics",
 		ServiceName:  "websocket-server",
 	})
-
-	// Start the metrics provider
-	if err := metricsProvider.Start(); err != nil {
-		log.Fatal(err)
-	}
-	defer metricsProvider.Stop()
+	defer mp.Shutdown(context.Background()) //nolint:errcheck
 
 	// Create the WebSocket listener with metrics
 	listener, err := server.NewListener().
 		WithEventBus(eventBus).
 		WithLogger(logger).
-		WithMetricsProvider(metricsProvider).
+		WithMeterProvider(mp).
 		WithQueueSize(512).
 		WithPingInterval(30 * time.Second).
 		WithEventAuth(server.AllowTopicPrefix("client/")).
@@ -64,7 +60,7 @@ func ExampleWebSocketMetrics() {
 	http.Handle("/ws", listener)
 
 	// Start server
-	server := &http.Server{
+	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: http.DefaultServeMux,
 	}
@@ -74,68 +70,11 @@ func ExampleWebSocketMetrics() {
 	fmt.Println("Connect to ws://localhost:8080/ws to test")
 
 	// In a real application, you would handle graceful shutdown
-	log.Fatal(server.ListenAndServe())
+	log.Fatal(srv.ListenAndServe())
 }
 
-// Custom metrics provider that logs metrics instead of publishing them
-type loggingMetricsProvider struct {
-	logger *zap.Logger
-}
-
-func (p *loggingMetricsProvider) Counter(name string) o11y.Counter {
-	return &loggingCounter{name: name, logger: p.logger}
-}
-
-func (p *loggingMetricsProvider) Histogram(name string) o11y.Histogram {
-	return &loggingHistogram{name: name, logger: p.logger}
-}
-
-func (p *loggingMetricsProvider) Gauge(name string) o11y.Gauge {
-	return &loggingGauge{name: name, logger: p.logger}
-}
-
-// Custom metric implementations that log instead of storing
-type loggingCounter struct {
-	name   string
-	logger *zap.Logger
-}
-
-func (c *loggingCounter) Add(ctx context.Context, value int64, labels ...o11y.Label) {
-	c.logger.Info("Counter incremented",
-		zap.String("metric", c.name),
-		zap.Int64("value", value),
-		zap.Any("labels", labels),
-	)
-}
-
-type loggingHistogram struct {
-	name   string
-	logger *zap.Logger
-}
-
-func (h *loggingHistogram) Record(ctx context.Context, value float64, labels ...o11y.Label) {
-	h.logger.Info("Histogram recorded",
-		zap.String("metric", h.name),
-		zap.Float64("value", value),
-		zap.Any("labels", labels),
-	)
-}
-
-type loggingGauge struct {
-	name   string
-	logger *zap.Logger
-}
-
-func (g *loggingGauge) Set(ctx context.Context, value float64, labels ...o11y.Label) {
-	g.logger.Info("Gauge set",
-		zap.String("metric", g.name),
-		zap.Float64("value", value),
-		zap.Any("labels", labels),
-	)
-}
-
-// ExampleListener_metricsWithCustomProvider shows how to use a custom metrics provider.
-func ExampleListener_metricsWithCustomProvider() {
+// ExampleListener_metricsWithNoopProvider shows how to use a noop meter provider for testing.
+func ExampleListener_metricsWithNoopProvider() {
 
 	// Create logger and EventBus
 	logger, _ := zap.NewDevelopment()
@@ -154,14 +93,14 @@ func ExampleListener_metricsWithCustomProvider() {
 		log.Fatal(err)
 	}
 
-	// Use custom logging metrics provider
-	metricsProvider := &loggingMetricsProvider{logger: logger}
+	// Use noop meter provider (useful for testing)
+	mp := noop.NewMeterProvider()
 
 	// Create WebSocket listener
 	listener, err := server.NewListener().
 		WithEventBus(eventBus).
 		WithLogger(logger).
-		WithMetricsProvider(metricsProvider).
+		WithMeterProvider(mp).
 		Build()
 	if err != nil {
 		log.Fatal(err)
@@ -170,16 +109,15 @@ func ExampleListener_metricsWithCustomProvider() {
 	// Set up HTTP server
 	http.Handle("/ws", listener)
 
-	fmt.Println("WebSocket server with custom logging metrics provider running on :8080")
-	fmt.Println("All metrics will be logged to the console")
+	fmt.Println("WebSocket server with noop metrics provider running on :8080")
 
 	// Start server
-	server := &http.Server{
+	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: http.DefaultServeMux,
 	}
 
-	log.Fatal(server.ListenAndServe())
+	log.Fatal(srv.ListenAndServe())
 }
 
 // ExampleListener_metricsDisabled shows how to run the WebSocket server without metrics.
@@ -200,11 +138,11 @@ func ExampleListener_metricsDisabled() {
 		log.Fatal(err)
 	}
 
-	// Create WebSocket listener without metrics provider
+	// Create WebSocket listener without meter provider
 	listener, err := server.NewListener().
 		WithEventBus(eventBus).
 		WithLogger(logger).
-		// No WithMetricsProvider() call - metrics will be disabled
+		// No WithMeterProvider() call - metrics will be disabled
 		Build()
 	if err != nil {
 		log.Fatal(err)
@@ -214,10 +152,10 @@ func ExampleListener_metricsDisabled() {
 
 	fmt.Println("WebSocket server running without metrics on :8080")
 
-	server := &http.Server{
+	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: http.DefaultServeMux,
 	}
 
-	log.Fatal(server.ListenAndServe())
+	log.Fatal(srv.ListenAndServe())
 }

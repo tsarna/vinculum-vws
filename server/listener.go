@@ -41,7 +41,7 @@ func newListener(config *ListenerConfig) *Listener {
 		logger:                 config.logger,
 		config:                 config,
 		subscriptionController: config.subscriptionController(config.logger),
-		metrics:                NewWebSocketMetrics(config.metricsProvider),
+		metrics:                newWebSocketMetricsFromProvider(config.meterProvider),
 		connections:            make(map[*Connection]struct{}),
 		shutdown:               make(chan struct{}),
 	}

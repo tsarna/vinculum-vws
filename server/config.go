@@ -5,8 +5,8 @@ import (
 	"time"
 
 	bus "github.com/tsarna/vinculum-bus"
-	"github.com/tsarna/vinculum-bus/o11y"
 	"github.com/tsarna/vinculum-bus/transform"
+	"go.opentelemetry.io/otel/metric"
 	"go.uber.org/zap"
 )
 
@@ -16,7 +16,7 @@ import (
 type ListenerConfig struct {
 	eventBus               bus.EventBus
 	logger                 *zap.Logger
-	metricsProvider        o11y.MetricsProvider
+	meterProvider          metric.MeterProvider
 	queueSize              int
 	pingInterval           time.Duration
 	writeTimeout           time.Duration
@@ -53,7 +53,7 @@ const (
 //	listener, err := vws.NewListener().
 //	    WithEventBus(eventBus).
 //	    WithLogger(logger).
-//	    WithMetricsProvider(metricsProvider).
+//	    WithMeterProvider(meterProvider).
 //	    WithQueueSize(512).
 //	    WithPingInterval(45 * time.Second).
 //	    WithEventAuth(AllowTopicPrefix("client/")).
@@ -85,13 +85,13 @@ func (c *ListenerConfig) WithLogger(logger *zap.Logger) *ListenerConfig {
 	return c
 }
 
-// WithMetricsProvider sets the MetricsProvider for the WebSocket Listener.
-// The MetricsProvider is optional and enables collection of WebSocket server metrics
+// WithMeterProvider sets the OTel MeterProvider for the WebSocket Listener.
+// The MeterProvider is optional and enables collection of WebSocket server metrics
 // such as connection counts, message rates, error rates, and connection durations.
 //
 // If not provided, no metrics will be collected.
-func (c *ListenerConfig) WithMetricsProvider(provider o11y.MetricsProvider) *ListenerConfig {
-	c.metricsProvider = provider
+func (c *ListenerConfig) WithMeterProvider(provider metric.MeterProvider) *ListenerConfig {
+	c.meterProvider = provider
 	return c
 }
 
