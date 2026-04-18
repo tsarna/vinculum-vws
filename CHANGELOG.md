@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-04-18
+
+### Added
+
+- **`vinculum.server.name` metric attribute** — all server metrics now carry a `vinculum.server.name` attribute identifying the vinculum server block. The listener config accepts `WithServerName(name)` to set it, and `NewWebSocketMetrics` now takes a `serverName` parameter.
+
 ## [0.11.0] - 2026-04-08
 
 ### Changed

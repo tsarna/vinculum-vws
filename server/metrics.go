@@ -33,20 +33,22 @@ type WebSocketMetrics struct {
 	pingsSent     metric.Int64Counter // websocket.pings_sent
 	pongTimeouts  metric.Int64Counter // websocket.pong_timeouts
 	writeTimeouts metric.Int64Counter // websocket.write_timeouts
+
+	serverTag attribute.KeyValue
 }
 
 // newWebSocketMetricsFromProvider creates WebSocketMetrics from a MeterProvider.
 // Returns nil if the provider is nil.
-func newWebSocketMetricsFromProvider(mp metric.MeterProvider) *WebSocketMetrics {
+func newWebSocketMetricsFromProvider(serverName string, mp metric.MeterProvider) *WebSocketMetrics {
 	if mp == nil {
 		return nil
 	}
-	return NewWebSocketMetrics(mp.Meter("github.com/tsarna/vinculum-vws/server"))
+	return NewWebSocketMetrics(serverName, mp.Meter("github.com/tsarna/vinculum-vws/server"))
 }
 
 // NewWebSocketMetrics creates a new WebSocketMetrics instance using the provided Meter.
 // If the meter is nil, returns nil (no metrics will be collected).
-func NewWebSocketMetrics(meter metric.Meter) *WebSocketMetrics {
+func NewWebSocketMetrics(serverName string, meter metric.Meter) *WebSocketMetrics {
 	if meter == nil {
 		return nil
 	}
@@ -126,6 +128,7 @@ func NewWebSocketMetrics(meter metric.Meter) *WebSocketMetrics {
 		pingsSent:          ps,
 		pongTimeouts:       pt,
 		writeTimeouts:      wt,
+		serverTag:          attribute.String("vinculum.server.name", serverName),
 	}
 }
 
@@ -136,7 +139,7 @@ func (m *WebSocketMetrics) RecordConnectionStart(ctx context.Context) {
 	if m == nil {
 		return
 	}
-	m.totalConnections.Add(ctx, 1)
+	m.totalConnections.Add(ctx, 1, metric.WithAttributes(m.serverTag))
 }
 
 // RecordConnectionActive updates the active connection count.
@@ -144,7 +147,7 @@ func (m *WebSocketMetrics) RecordConnectionActive(ctx context.Context, count int
 	if m == nil {
 		return
 	}
-	m.activeConnections.Record(ctx, float64(count))
+	m.activeConnections.Record(ctx, float64(count), metric.WithAttributes(m.serverTag))
 }
 
 // RecordConnectionEnd records when a WebSocket connection ends and its duration.
@@ -152,7 +155,7 @@ func (m *WebSocketMetrics) RecordConnectionEnd(ctx context.Context, duration tim
 	if m == nil {
 		return
 	}
-	m.connectionDuration.Record(ctx, duration.Seconds())
+	m.connectionDuration.Record(ctx, duration.Seconds(), metric.WithAttributes(m.serverTag))
 }
 
 // RecordConnectionError records connection-level errors (upgrade failures, etc.).
@@ -160,7 +163,7 @@ func (m *WebSocketMetrics) RecordConnectionError(ctx context.Context, errorType 
 	if m == nil {
 		return
 	}
-	m.connectionErrors.Add(ctx, 1, metric.WithAttributes(attribute.String("error.type", errorType)))
+	m.connectionErrors.Add(ctx, 1, metric.WithAttributes(attribute.String("error.type", errorType), m.serverTag))
 }
 
 // Message metrics
@@ -170,8 +173,8 @@ func (m *WebSocketMetrics) RecordMessageReceived(ctx context.Context, sizeBytes 
 	if m == nil {
 		return
 	}
-	m.messagesReceived.Add(ctx, 1, metric.WithAttributes(attribute.String("websocket.message.kind", messageKind)))
-	m.messageSize.Record(ctx, float64(sizeBytes), metric.WithAttributes(attribute.String("websocket.message.direction", "received")))
+	m.messagesReceived.Add(ctx, 1, metric.WithAttributes(attribute.String("websocket.message.kind", messageKind), m.serverTag))
+	m.messageSize.Record(ctx, float64(sizeBytes), metric.WithAttributes(attribute.String("websocket.message.direction", "received"), m.serverTag))
 }
 
 // RecordMessageSent records when a message is sent to a client.
@@ -179,8 +182,8 @@ func (m *WebSocketMetrics) RecordMessageSent(ctx context.Context, sizeBytes int,
 	if m == nil {
 		return
 	}
-	m.messagesSent.Add(ctx, 1, metric.WithAttributes(attribute.String("websocket.message.type", messageType)))
-	m.messageSize.Record(ctx, float64(sizeBytes), metric.WithAttributes(attribute.String("websocket.message.direction", "sent")))
+	m.messagesSent.Add(ctx, 1, metric.WithAttributes(attribute.String("websocket.message.type", messageType), m.serverTag))
+	m.messageSize.Record(ctx, float64(sizeBytes), metric.WithAttributes(attribute.String("websocket.message.direction", "sent"), m.serverTag))
 }
 
 // RecordMessageError records message processing errors.
@@ -191,6 +194,7 @@ func (m *WebSocketMetrics) RecordMessageError(ctx context.Context, errorType str
 	m.messageErrors.Add(ctx, 1, metric.WithAttributes(
 		attribute.String("error.type", errorType),
 		attribute.String("websocket.message.kind", messageKind),
+		m.serverTag,
 	))
 }
 
@@ -207,16 +211,17 @@ func (m *WebSocketMetrics) RecordRequest(ctx context.Context, requestKind string
 	}
 
 	startTime := time.Now()
-	m.requestsTotal.Add(ctx, 1, metric.WithAttributes(attribute.String("websocket.request.kind", requestKind)))
+	m.requestsTotal.Add(ctx, 1, metric.WithAttributes(attribute.String("websocket.request.kind", requestKind), m.serverTag))
 
 	return func(err error) {
 		duration := time.Since(startTime)
-		m.requestDuration.Record(ctx, duration.Seconds(), metric.WithAttributes(attribute.String("websocket.request.kind", requestKind)))
+		m.requestDuration.Record(ctx, duration.Seconds(), metric.WithAttributes(attribute.String("websocket.request.kind", requestKind), m.serverTag))
 
 		if err != nil {
 			m.requestErrors.Add(ctx, 1, metric.WithAttributes(
 				attribute.String("websocket.request.kind", requestKind),
 				attribute.String("error.type", err.Error()),
+				m.serverTag,
 			))
 		}
 	}
@@ -229,7 +234,7 @@ func (m *WebSocketMetrics) RecordPingSent(ctx context.Context) {
 	if m == nil {
 		return
 	}
-	m.pingsSent.Add(ctx, 1)
+	m.pingsSent.Add(ctx, 1, metric.WithAttributes(m.serverTag))
 }
 
 // RecordPongTimeout records when a client fails to respond to a ping (dead connection).
@@ -237,7 +242,7 @@ func (m *WebSocketMetrics) RecordPongTimeout(ctx context.Context) {
 	if m == nil {
 		return
 	}
-	m.pongTimeouts.Add(ctx, 1)
+	m.pongTimeouts.Add(ctx, 1, metric.WithAttributes(m.serverTag))
 }
 
 // RecordWriteTimeout records when a write operation times out.
@@ -245,5 +250,5 @@ func (m *WebSocketMetrics) RecordWriteTimeout(ctx context.Context) {
 	if m == nil {
 		return
 	}
-	m.writeTimeouts.Add(ctx, 1)
+	m.writeTimeouts.Add(ctx, 1, metric.WithAttributes(m.serverTag))
 }

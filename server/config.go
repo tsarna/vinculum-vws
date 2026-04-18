@@ -16,6 +16,7 @@ import (
 type ListenerConfig struct {
 	eventBus               bus.EventBus
 	logger                 *zap.Logger
+	serverName             string
 	meterProvider          metric.MeterProvider
 	queueSize              int
 	pingInterval           time.Duration
@@ -82,6 +83,12 @@ func (c *ListenerConfig) WithEventBus(eventBus bus.EventBus) *ListenerConfig {
 // The Logger is required for connection events, errors, and debugging.
 func (c *ListenerConfig) WithLogger(logger *zap.Logger) *ListenerConfig {
 	c.logger = logger
+	return c
+}
+
+// WithServerName sets the vinculum server name used in metric attributes.
+func (c *ListenerConfig) WithServerName(name string) *ListenerConfig {
+	c.serverName = name
 	return c
 }
 

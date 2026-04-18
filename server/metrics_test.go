@@ -38,7 +38,7 @@ func collectMetrics(t *testing.T, reader *sdkmetric.ManualReader) map[string]met
 func TestNewWebSocketMetrics(t *testing.T) {
 	t.Run("with meter", func(t *testing.T) {
 		meter, _ := newTestMeter()
-		metrics := NewWebSocketMetrics(meter)
+		metrics := NewWebSocketMetrics("test", meter)
 
 		if metrics == nil {
 			t.Fatal("Expected metrics to be non-nil")
@@ -63,7 +63,7 @@ func TestNewWebSocketMetrics(t *testing.T) {
 	})
 
 	t.Run("with nil meter", func(t *testing.T) {
-		metrics := NewWebSocketMetrics(nil)
+		metrics := NewWebSocketMetrics("", nil)
 		if metrics != nil {
 			t.Error("Expected metrics to be nil when meter is nil")
 		}
@@ -72,7 +72,7 @@ func TestNewWebSocketMetrics(t *testing.T) {
 
 func TestWebSocketMetrics_ConnectionLifecycle(t *testing.T) {
 	meter, reader := newTestMeter()
-	metrics := NewWebSocketMetrics(meter)
+	metrics := NewWebSocketMetrics("test", meter)
 	ctx := context.Background()
 
 	metrics.RecordConnectionStart(ctx)
@@ -98,7 +98,7 @@ func TestWebSocketMetrics_ConnectionLifecycle(t *testing.T) {
 
 func TestWebSocketMetrics_Messages(t *testing.T) {
 	meter, reader := newTestMeter()
-	metrics := NewWebSocketMetrics(meter)
+	metrics := NewWebSocketMetrics("test", meter)
 	ctx := context.Background()
 
 	metrics.RecordMessageReceived(ctx, 256, "subscribe")
@@ -123,7 +123,7 @@ func TestWebSocketMetrics_Messages(t *testing.T) {
 
 func TestWebSocketMetrics_Requests(t *testing.T) {
 	meter, reader := newTestMeter()
-	metrics := NewWebSocketMetrics(meter)
+	metrics := NewWebSocketMetrics("test", meter)
 	ctx := context.Background()
 
 	// Test successful request
@@ -150,7 +150,7 @@ func TestWebSocketMetrics_Requests(t *testing.T) {
 
 func TestWebSocketMetrics_Health(t *testing.T) {
 	meter, reader := newTestMeter()
-	metrics := NewWebSocketMetrics(meter)
+	metrics := NewWebSocketMetrics("test", meter)
 	ctx := context.Background()
 
 	metrics.RecordPingSent(ctx)
@@ -192,7 +192,7 @@ func TestWebSocketMetrics_NilSafety(t *testing.T) {
 
 func TestWebSocketMetrics_ConcurrentAccess(t *testing.T) {
 	meter, reader := newTestMeter()
-	metrics := NewWebSocketMetrics(meter)
+	metrics := NewWebSocketMetrics("test", meter)
 	ctx := context.Background()
 
 	const numGoroutines = 10
