@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.11.2] - 2026-04-23
+
+### Changed
+
+- **Topic matching routes through `vinculum-bus/topicmatch`** — the event-authorization allow-pattern check now honors MQTT 5.0 §4.7.2: filters starting with `+` or `#` no longer match reserved `$`-prefixed topics. Exact and `$`-prefixed patterns are unaffected. Requires vinculum-bus v0.12.0.
+
 ## [0.11.1] - 2026-04-18
 
 ### Added
