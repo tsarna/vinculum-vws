@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/amir-yaghoubi/mqttpattern"
+	"github.com/tsarna/vinculum-bus/topicmatch"
 	vws "github.com/tsarna/vinculum-vws"
 )
 
@@ -58,7 +58,7 @@ func AllowTopicPrefix(prefix string) EventAuthFunc {
 //   - "client/+userId/actions/+" - allows client/john/actions/login, client/jane/actions/logout, etc.
 func AllowTopicPattern(pattern string) EventAuthFunc {
 	return func(ctx context.Context, msg *vws.WireMessage) (*vws.WireMessage, error) {
-		if mqttpattern.Matches(pattern, msg.Topic) {
+		if topicmatch.Matches(pattern, msg.Topic) {
 			return msg, nil // Allow with original message
 		}
 		return nil, fmt.Errorf("event not allowed")

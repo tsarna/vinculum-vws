@@ -27,8 +27,8 @@ github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/tsarna/go-structdiff v0.2.1 h1:SD30U/azJB85tH9dgNu4qVOA2bPie9e1l5EvJodMaD8=
 github.com/tsarna/go-structdiff v0.2.1/go.mod h1:SJHNQUzbdMbXBBNyOBzBsRotrWcX1jruIrhouLuNBgo=
-github.com/tsarna/vinculum-bus v0.11.0 h1:vg2HbElFoh0s6vmPnTvcNwbccO2/qp7o5nYTTC8l5sw=
-github.com/tsarna/vinculum-bus v0.11.0/go.mod h1:fwVN24q/2iKXvtZQeiRB0tW41WsGWsV6nyvwetB25fA=
+github.com/tsarna/vinculum-bus v0.12.0 h1:tCgOUpoKfX59uopUVMPTYI9o+WJL3w/byemaIueLtEo=
+github.com/tsarna/vinculum-bus v0.12.0/go.mod h1:fwVN24q/2iKXvtZQeiRB0tW41WsGWsV6nyvwetB25fA=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
 go.opentelemetry.io/auto/sdk v1.2.1/go.mod h1:KRTj+aOaElaLi+wW1kO/DZRXwkF4C5xPbEe3ZiIhN7Y=
 go.opentelemetry.io/otel v1.43.0 h1:mYIM03dnh5zfN7HautFE4ieIig9amkNANT+xcVxAj9I=
