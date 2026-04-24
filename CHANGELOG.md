@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-04-23
+
+### Changed
+
+Adapt to API change for transforms in vinculum-bus 0.14.0
+
 ## [0.11.2] - 2026-04-23
 
 ### Changed

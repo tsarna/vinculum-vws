@@ -455,7 +455,7 @@ func handleRequest(c *Connection, ctx context.Context, request vws.WireMessage) 
 				// Don't publish anything, but still send ACK response (err remains nil)
 			} else {
 				// Apply inbound transforms
-				transformedMsg, _ := transform.ApplyTransforms(ctx, modifiedMsg.Topic, modifiedMsg.Data, c.config.inboundTransforms)
+				transformedMsg, _ := transform.ApplyTransforms(ctx, modifiedMsg.Topic, modifiedMsg.Data, nil, c.config.inboundTransforms)
 				if transformedMsg != nil {
 					err = c.eventBus.Publish(ctx, transformedMsg.Topic, transformedMsg.Payload)
 				}

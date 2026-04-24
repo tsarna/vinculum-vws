@@ -7,7 +7,7 @@ require go.uber.org/zap v1.27.1
 require (
 	github.com/coder/websocket v1.8.14
 	github.com/stretchr/testify v1.11.1
-	github.com/tsarna/vinculum-bus v0.12.0
+	github.com/tsarna/vinculum-bus v0.14.0
 	go.opentelemetry.io/otel v1.43.0
 	go.opentelemetry.io/otel/metric v1.43.0
 	go.opentelemetry.io/otel/sdk/metric v1.43.0
