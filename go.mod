@@ -2,7 +2,7 @@ module github.com/tsarna/vinculum-vws
 
 go 1.25.8
 
-require go.uber.org/zap v1.27.1
+require go.uber.org/zap v1.28.0
 
 require (
 	github.com/coder/websocket v1.8.14
