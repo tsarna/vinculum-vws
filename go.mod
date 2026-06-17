@@ -5,7 +5,7 @@ go 1.25.8
 require go.uber.org/zap v1.28.0
 
 require (
-	github.com/coder/websocket v1.8.14
+	github.com/coder/websocket v1.8.15
 	github.com/stretchr/testify v1.11.1
 	github.com/tsarna/vinculum-bus v0.15.0
 	go.opentelemetry.io/otel v1.44.0
