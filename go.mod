@@ -8,10 +8,10 @@ require (
 	github.com/coder/websocket v1.8.15
 	github.com/stretchr/testify v1.12.1
 	github.com/tsarna/vinculum-bus v0.16.0
-	go.opentelemetry.io/otel v1.45.0
-	go.opentelemetry.io/otel/metric v1.45.0
+	go.opentelemetry.io/otel v1.46.0
+	go.opentelemetry.io/otel/metric v1.46.0
 	go.opentelemetry.io/otel/sdk/metric v1.45.0
-	go.opentelemetry.io/otel/trace v1.45.0
+	go.opentelemetry.io/otel/trace v1.46.0
 )
 
 require github.com/tsarna/go-structdiff v0.2.1 // indirect
