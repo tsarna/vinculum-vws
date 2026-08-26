@@ -156,6 +156,28 @@ func (c *Client) Disconnect() error {
 	return nil
 }
 
+// IsConnected reports whether the client currently holds a live WebSocket
+// connection: Connect has succeeded and neither Disconnect nor a read/write
+// error has torn it down.
+//
+// It is a snapshot, not a guarantee — the connection may drop between this call
+// and the next Publish — which is what makes it useful for a health probe and
+// useless as a precondition. Code that wants to publish should publish and
+// handle the error.
+//
+// It is deliberately stricter than the check the operational methods make: both
+// the started flag and the connection itself must be present, so the brief
+// window inside cleanup where the socket is already closed reads as
+// disconnected rather than connected.
+func (c *Client) IsConnected() bool {
+	if atomic.LoadInt32(&c.started) == 0 {
+		return false
+	}
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.conn != nil
+}
+
 // cleanup performs the common cleanup operations for both normal and error disconnections
 func (c *Client) cleanup() {
 	c.cleanupWithStatus(websocket.StatusNormalClosure, "client disconnect")
