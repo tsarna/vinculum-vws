@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-08-25
+
+### Added
+
+- **`Client.IsConnected()`** reports whether the client currently holds a live
+  WebSocket connection. It exists for health reporting: a host answering a
+  readiness probe needs to say "this process cannot do its job right now" while
+  the connection is down.
+
+  It is a snapshot, not a guarantee — the connection may drop between the call
+  and the next `Publish` — so it is useful for a probe and useless as a
+  precondition. It is deliberately stricter than the check the operational
+  methods make, requiring both the started flag and the connection itself, so
+  the brief window inside cleanup where the socket is already closed reads as
+  disconnected.
+
 ## [0.13.0] - 2026-05-25
 
 Change license to Apache-2.0
