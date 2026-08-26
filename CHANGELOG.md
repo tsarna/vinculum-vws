@@ -2,7 +2,13 @@
 
 ## [Unreleased]
 
-## [0.14.0] - 2026-08-25
+## [0.14.1] - 2026-08-25
+
+Same change as 0.14.0, released on top of the dependency updates 0.14.0 was
+tagged without. **Use this instead of 0.14.0**, which was published from a
+commit that predates the `vinculum-bus` 0.16.0 bump. The bad tag is left in
+place rather than moved: a tag the module proxy has already served cannot be
+changed without poisoning that version.
 
 ### Added
 
