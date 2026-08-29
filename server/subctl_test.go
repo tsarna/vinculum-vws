@@ -194,6 +194,15 @@ func (m *mockEventBus) PublishSync(ctx context.Context, topic string, message an
 	return nil
 }
 
+// Queue accounting: a mock has no queue, so it reports none.
+func (m *mockEventBus) QueueDepth() int { return 0 }
+
+func (m *mockEventBus) QueueCapacity() int { return 0 }
+
+func (m *mockEventBus) DroppedTotal() uint64 { return 0 }
+
+func (m *mockEventBus) UndeliveredTotal() uint64 { return 0 }
+
 func (m *mockEventBus) Start() error {
 	return nil
 }
